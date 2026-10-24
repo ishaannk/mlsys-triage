@@ -1,0 +1,53 @@
+[
+  {
+    "device": "NVIDIA A40",
+    "kv_frac": 0.5,
+    "rate_rps": 1.0,
+    "price_gpu_s": 0.01415,
+    "price_lo": 0.00058,
+    "price_hi": 0.02773,
+    "price_ci": "[0.0006, 0.0277]",
+    "small_p95_delta_ms": 23.41,
+    "throughput_delta": -0.0019,
+    "n": 2,
+    "n_seeds": 2,
+    "escalate_every": 8,
+    "kv_peak": 0.0,
+    "headroom_bound": false,
+    "PLACEHOLDER": false
+  },
+  {
+    "device": "NVIDIA A40",
+    "kv_frac": 0.5,
+    "rate_rps": 4.0,
+    "price_gpu_s": 0.23697,
+    "price_lo": 0.20898,
+    "price_hi": 0.26497,
+    "price_ci": "[0.2090, 0.2650]",
+    "small_p95_delta_ms": 83.54,
+    "throughput_delta": -0.1054,
+    "n": 2,
+    "n_seeds": 2,
+    "escalate_every": 8,
+    "kv_peak": 0.003,
+    "headroom_bound": false,
+    "PLACEHOLDER": false
+  },
+  {
+    "device": "NVIDIA A40",
+    "kv_frac": 0.5,
+    "rate_rps": 10.0,
+    "price_gpu_s": 0.30948,
+    "price_lo": 0.29619,
+    "price_hi": 0.32278,
+    "price_ci": "[0.2962, 0.3228]",
+    "small_p95_delta_ms": 109.31,
+    "throughput_delta": -0.2755,
+    "n": 2,
+    "n_seeds": 2,
+    "escalate_every": 8,
+    "kv_peak": 0.0057,
+    "headroom_bound": false,
+    "PLACEHOLDER": false
+  }
+]

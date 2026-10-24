@@ -1,0 +1,33 @@
+# secrets — never commit
+.env
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# runtime state / local artifacts
+data/*.db
+data/online_state.json
+nohup.out
+*.log
+
+# editors
+.vscode/
+.idea/
+
+# internal-only brief — never publish
+SV-Serve_assumptions_and_instructions.pdf
+SV-Serve_Required_Changes_and_Untouched_Areas.docx
+*.pdf
+*.docx
+
+# local working files
+image*.png
+logo.png
+Screenshot*.png
+data/mtbench_gpt5.json
+
+# research paper — local only, never push
+paper/
+

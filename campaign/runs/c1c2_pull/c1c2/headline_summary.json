@@ -1,0 +1,17 @@
+{
+  "stage": "headline",
+  "run_id": "headline",
+  "n_planned": 2504,
+  "n_executed": 2504,
+  "n_resumed": 0,
+  "n_error": 0,
+  "wall_start": 3976589.537089584,
+  "wall_end": 3992169.418975544,
+  "wall_s": 15579.881885960232,
+  "n_devices": 1,
+  "substrate": "vllm_local",
+  "config_hash": "8c4dd8c9afa4d6b9",
+  "mode": "sequential",
+  "rate_rps": 1.0,
+  "gpu_seconds_per_request": 6.221997558290828
+}

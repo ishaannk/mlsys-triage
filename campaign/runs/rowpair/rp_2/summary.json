@@ -1,0 +1,17 @@
+{
+  "stage": "rp_2",
+  "run_id": "rp_2",
+  "n_planned": 40,
+  "n_executed": 40,
+  "n_resumed": 0,
+  "n_error": 0,
+  "wall_start": 13771.6466839,
+  "wall_end": 13808.755976659942,
+  "wall_s": 37.109292759942036,
+  "n_devices": 1,
+  "substrate": "mock",
+  "config_hash": "99b8d86cb05a2a63",
+  "mode": "arrival",
+  "rate_rps": 2.0,
+  "gpu_seconds_per_request": 0.9277323189985509
+}

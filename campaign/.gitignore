@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+data/cache/
+# raw run logs: model answers can restate GPQA items (CC-BY no-plaintext term);
+# publish only through scripts/redact.py
+runs/**/served.jsonl
+runs/**/calls.jsonl
+runs/**/*.tar.gz
+runs/**/prepared/
+runs/**/.run.lock

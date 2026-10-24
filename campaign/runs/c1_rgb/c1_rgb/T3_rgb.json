@@ -1,0 +1,56 @@
+{
+  "caption": "CORRUPTION (C1). Detection AUROC vs the corruption label. `auroc_prompt_only` is 0.500 by construction, not by measurement: the question is byte-identical across the label, so any function of the question alone is constant on the pair. Every signal is ORIENTED so higher = more likely corrupted; evidence_sufficiency and retrieval_support are negated (contradiction:+1, evidence_sufficiency:-1, instability:+1, retrieval_disagreement:+1, retrieval_support:-1, uncertainty:+1).",
+  "columns": [
+    "corruption",
+    "rate",
+    "n_pos",
+    "n_neg",
+    "auroc_reliability_state",
+    "auroc_uncertainty",
+    "auroc_instability",
+    "auroc_contradiction",
+    "auroc_retrieval_disagreement",
+    "auroc_evidence_sufficiency",
+    "auroc_retrieval_support",
+    "auroc_prompt_only",
+    "quality",
+    "abstain_pct"
+  ],
+  "rows": [
+    {
+      "corruption": "dataset_negative",
+      "rate": 0.5,
+      "n_pos": 200,
+      "n_neg": 200,
+      "auroc_reliability_state": 0.509,
+      "auroc_uncertainty": 0.5031,
+      "auroc_instability": 0.5,
+      "auroc_contradiction": 0.495,
+      "auroc_retrieval_disagreement": 0.5131,
+      "auroc_evidence_sufficiency": 0.516,
+      "auroc_retrieval_support": 0.5149,
+      "auroc_prompt_only": 0.5,
+      "quality": 0.27,
+      "abstain_pct": 0.0
+    },
+    {
+      "corruption": "dataset_negative",
+      "rate": 1.0,
+      "n_pos": 200,
+      "n_neg": 200,
+      "auroc_reliability_state": 0.5707,
+      "auroc_uncertainty": 0.5044,
+      "auroc_instability": 0.5,
+      "auroc_contradiction": 0.5,
+      "auroc_retrieval_disagreement": 0.5909,
+      "auroc_evidence_sufficiency": 0.5751,
+      "auroc_retrieval_support": 0.5879,
+      "auroc_prompt_only": 0.5,
+      "quality": 0.255,
+      "abstain_pct": 0.0
+    }
+  ],
+  "meta": {
+    "prereg_sha": "8d85c4bf5a2299e3"
+  }
+}

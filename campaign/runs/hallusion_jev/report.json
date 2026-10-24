@@ -1,0 +1,48 @@
+{
+  "jev_model": "jev-1.13.0",
+  "n_images_judged": 743,
+  "n_pairs": 356,
+  "n_unsupported": 293,
+  "prompt_only": {
+    "auroc": 0.5,
+    "lo": 0.5,
+    "hi": 0.5,
+    "n_pos": 293,
+    "n_neg": 450,
+    "n_pairs": 356
+  },
+  "jev_unsupported": {
+    "auroc": 0.8337,
+    "lo": 0.8024,
+    "hi": 0.8616,
+    "n_pos": 293,
+    "n_neg": 450,
+    "n_pairs": 356
+  },
+  "per_subcategory": {
+    "chart": 0.9283,
+    "figure": 0.8846,
+    "illusion": 0.719,
+    "map": 0.8193,
+    "math": 0.6993,
+    "ocr": 0.8842,
+    "table": 0.9442
+  },
+  "jev_vqa_accuracy": {
+    "original": {
+      "n": 356,
+      "accuracy": 0.8258
+    },
+    "edited": {
+      "n": 387,
+      "accuracy": 0.7235
+    }
+  },
+  "jev_cost": {
+    "calls": 1486,
+    "p50_ms": 417.7,
+    "p95_ms": 806.0,
+    "tokens_in": 2695651,
+    "usd": 0.1132
+  }
+}

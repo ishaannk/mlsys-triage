@@ -1,0 +1,113 @@
+{
+  "solo_device": {
+    "ok": true,
+    "detail": {
+      "skipped": "servers already running"
+    }
+  },
+  "nvml": {
+    "ok": false,
+    "detail": {
+      "mode": "none",
+      "gpu": "unknown"
+    }
+  },
+  "tiers_up": {
+    "ok": true,
+    "detail": {
+      "big": "http://127.0.0.1:60381/v1",
+      "small": "http://127.0.0.1:60380/v1"
+    }
+  },
+  "metrics_big": {
+    "ok": true,
+    "detail": {
+      "missing": [],
+      "kv_metric": "vllm:kv_cache_usage_perc",
+      "kv_value": 0.6423,
+      "kv_units_suspect": false,
+      "alias_used": {
+        "num_requests_running": "vllm:num_requests_running",
+        "num_requests_waiting": "vllm:num_requests_waiting",
+        "kv_cache_usage_perc": "vllm:kv_cache_usage_perc",
+        "prompt_tokens_total": "vllm:prompt_tokens_total",
+        "generation_tokens_total": "vllm:generation_tokens_total",
+        "preemptions_total": "vllm:num_preemptions_total",
+        "prefix_cache_queries": "vllm:gpu_prefix_cache_queries_total",
+        "prefix_cache_hits": "vllm:gpu_prefix_cache_hits_total",
+        "ttft_seconds": "vllm:time_to_first_token_seconds",
+        "tpot_seconds": "vllm:inter_token_latency_seconds"
+      }
+    }
+  },
+  "vllm_version_big": "not found",
+  "metrics_small": {
+    "ok": true,
+    "detail": {
+      "missing": [],
+      "kv_metric": "vllm:kv_cache_usage_perc",
+      "kv_value": 0.6423,
+      "kv_units_suspect": false,
+      "alias_used": {
+        "num_requests_running": "vllm:num_requests_running",
+        "num_requests_waiting": "vllm:num_requests_waiting",
+        "kv_cache_usage_perc": "vllm:kv_cache_usage_perc",
+        "prompt_tokens_total": "vllm:prompt_tokens_total",
+        "generation_tokens_total": "vllm:generation_tokens_total",
+        "preemptions_total": "vllm:num_preemptions_total",
+        "prefix_cache_queries": "vllm:gpu_prefix_cache_queries_total",
+        "prefix_cache_hits": "vllm:gpu_prefix_cache_hits_total",
+        "ttft_seconds": "vllm:time_to_first_token_seconds",
+        "tpot_seconds": "vllm:inter_token_latency_seconds"
+      }
+    }
+  },
+  "vllm_version_small": "not found",
+  "sse_big": {
+    "ok": true,
+    "detail": {
+      "ttft_ms": 56.35,
+      "e2e_ms": 149.73,
+      "tokens_out": 20,
+      "logprobs": true,
+      "error": null,
+      "note": ""
+    }
+  },
+  "sse_small": {
+    "ok": true,
+    "detail": {
+      "ttft_ms": 57.08,
+      "e2e_ms": 146.72,
+      "tokens_out": 20,
+      "logprobs": true,
+      "error": null,
+      "note": ""
+    }
+  },
+  "noise_floor": {
+    "ok": true,
+    "detail": {
+      "n": 20,
+      "ttft_p50_ms": 57.633,
+      "ttft_p95_ms": 94.533,
+      "e2e_p50_ms": 94.529,
+      "e2e_p95_ms": 129.533,
+      "rule": "no claimed latency delta may be smaller than these numbers"
+    }
+  },
+  "kv_blocks": {
+    "ok": true,
+    "detail": {
+      "note": "no startup logs matched '/workspace/logs/*.log' - record num_gpu_blocks by hand; it is the headroom variable"
+    }
+  },
+  "resume": {
+    "ok": true,
+    "detail": {
+      "rows_after_resume": 12,
+      "expected": 12,
+      "duplicates": 0
+    }
+  }
+}

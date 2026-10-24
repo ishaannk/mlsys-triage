@@ -1,0 +1,11 @@
+.env
+.venv
+.git
+__pycache__
+*.pyc
+data/*.db
+data/online_state.json
+*.png
+*.pdf
+*.log
+scripts

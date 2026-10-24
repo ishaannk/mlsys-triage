@@ -1,0 +1,17 @@
+{
+  "stage": "c1_rgb",
+  "run_id": "c1_rgb",
+  "n_planned": 1800,
+  "n_executed": 600,
+  "n_resumed": 0,
+  "n_error": 1200,
+  "wall_start": 4240457.974685244,
+  "wall_end": 4241115.490470402,
+  "wall_s": 657.5157851576805,
+  "n_devices": 1,
+  "substrate": "vllm_local",
+  "config_hash": "bdde16b416316064",
+  "mode": "sequential",
+  "rate_rps": 1.0,
+  "gpu_seconds_per_request": 1.0958596419294675
+}

@@ -1,0 +1,148 @@
+{
+  "model": "jev-1.13.0",
+  "source_rows": "runs\\c1_rgb\\c1_rgb\\c1_rgb\\served.jsonl",
+  "risk_reconstruction_match": 1.0,
+  "corruption_auroc": [
+    {
+      "rate": 0.5,
+      "split": "served",
+      "n_pos": 200,
+      "n_neg": 200,
+      "jev_insufficient": {
+        "auroc": 0.5731,
+        "lo": 0.5511,
+        "hi": 0.5986,
+        "n": 400,
+        "n_clusters": 200
+      },
+      "risk_logged": {
+        "auroc": 0.509,
+        "lo": 0.498,
+        "hi": 0.5209,
+        "n": 400,
+        "n_clusters": 200
+      },
+      "proxy_insufficient": {
+        "auroc": 0.516,
+        "lo": 0.503,
+        "hi": 0.5308,
+        "n": 400,
+        "n_clusters": 200
+      },
+      "risk_with_jev": {
+        "auroc": 0.5368,
+        "lo": 0.521,
+        "hi": 0.5564,
+        "n": 400,
+        "n_clusters": 200
+      },
+      "jev_not_supported": {
+        "auroc": 0.4727,
+        "lo": 0.4507,
+        "hi": 0.4943,
+        "n": 400,
+        "n_clusters": 200
+      }
+    },
+    {
+      "rate": 0.5,
+      "split": "heldout",
+      "n_pos": 100,
+      "n_neg": 100,
+      "jev_insufficient": {
+        "auroc": 0.6669,
+        "lo": 0.6201,
+        "hi": 0.7209,
+        "n": 200,
+        "n_clusters": 100
+      }
+    },
+    {
+      "rate": 1.0,
+      "split": "served",
+      "n_pos": 200,
+      "n_neg": 200,
+      "jev_insufficient": {
+        "auroc": 0.8459,
+        "lo": 0.8097,
+        "hi": 0.8806,
+        "n": 400,
+        "n_clusters": 200
+      },
+      "risk_logged": {
+        "auroc": 0.5707,
+        "lo": 0.5496,
+        "hi": 0.5963,
+        "n": 400,
+        "n_clusters": 200
+      },
+      "proxy_insufficient": {
+        "auroc": 0.5751,
+        "lo": 0.5529,
+        "hi": 0.5992,
+        "n": 400,
+        "n_clusters": 200
+      },
+      "risk_with_jev": {
+        "auroc": 0.695,
+        "lo": 0.6586,
+        "hi": 0.7352,
+        "n": 400,
+        "n_clusters": 200
+      },
+      "jev_not_supported": {
+        "auroc": 0.4272,
+        "lo": 0.3849,
+        "hi": 0.4714,
+        "n": 400,
+        "n_clusters": 200
+      }
+    },
+    {
+      "rate": 1.0,
+      "split": "heldout",
+      "n_pos": 100,
+      "n_neg": 100,
+      "jev_insufficient": {
+        "auroc": 0.9263,
+        "lo": 0.8842,
+        "hi": 0.9624,
+        "n": 200,
+        "n_clusters": 100
+      }
+    }
+  ],
+  "served_answer_wrong_auroc": {
+    "n": 600,
+    "error_rate": 0.7283,
+    "risk_logged": {
+      "auroc": 0.5612,
+      "lo": 0.4603,
+      "hi": 0.6636,
+      "n": 600,
+      "n_clusters": 200
+    },
+    "risk_with_jev": {
+      "auroc": 0.6356,
+      "lo": 0.5432,
+      "hi": 0.7271,
+      "n": 600,
+      "n_clusters": 200
+    },
+    "jev_not_supported": {
+      "auroc": 0.9217,
+      "lo": 0.8911,
+      "hi": 0.9508,
+      "n": 600,
+      "n_clusters": 200
+    }
+  },
+  "jev_cost": {
+    "calls": 900,
+    "p50_ms": 376.4,
+    "p95_ms": 448.1,
+    "tokens_in": 1350104,
+    "usd": 0.0567,
+    "note": "client wall clock to the hosted API; adds to e2e when on the request path"
+  }
+}

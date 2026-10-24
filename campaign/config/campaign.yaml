@@ -1,0 +1,104 @@
+substrate:
+  active: mock
+  allow_mock_fallback: false
+tiers:
+  small:
+    kind: local_gpu
+    model_id: Qwen/Qwen2.5-7B-Instruct-AWQ
+    served_model_name: small
+    endpoint: http://127.0.0.1:8101/v1
+    max_model_len: 8192
+    weights_gb: 5.6
+    kv_blocks: 6000
+    prefill_s_per_ktok: 0.004
+    decode_s_per_tok: 0.006
+  big:
+    kind: local_gpu
+    model_id: Qwen/Qwen2.5-32B-Instruct-AWQ
+    served_model_name: big
+    endpoint: http://127.0.0.1:8102/v1
+    max_model_len: 8192
+    weights_gb: 19.4
+    kv_blocks: 3000
+    prefill_s_per_ktok: 0.016
+    decode_s_per_tok: 0.02
+  mid:
+    kind: local_gpu
+    model_id: Qwen/Qwen2.5-14B-Instruct-AWQ
+    served_model_name: mid
+    endpoint: http://127.0.0.1:8103/v1
+    max_model_len: 8192
+    weights_gb: 9.5
+    kv_blocks: 4000
+    prefill_s_per_ktok: 0.009
+    decode_s_per_tok: 0.012
+mock:
+  step_base_s: 0.0008
+  batch_eff: 0.2
+  max_num_seqs: 256
+pairs:
+  A:
+    small: Qwen/Qwen2.5-7B-Instruct-AWQ
+    big: Qwen/Qwen2.5-32B-Instruct-AWQ
+  B:
+    small: meta-llama/Llama-3.1-8B-Instruct-AWQ
+    big: Qwen/Qwen2.5-32B-Instruct-AWQ
+signals:
+  uncertainty: true
+  instability: true
+  contradiction: true
+  retrieval_disagreement: true
+  evidence_sufficiency: true
+proxy:
+  resamples: 3
+  resample_temperature: 0.7
+  base_temperature: 0.2
+  max_tokens: 512
+tiers_policy:
+  signal_gate: 0.15
+  tau_star: 0.28
+  instability_high: 0.4
+  contradiction_high: 0.5
+  evidence_low: 0.4
+  retrieval_disagreement_high: 0.5
+retrieval:
+  top_k: 4
+  min_score: 0.2
+abstain:
+  weights:
+    uncertainty: 0.25
+    instability: 0.25
+    contradiction: 0.2
+    retrieval_disagreement: 0.15
+    evidence_insufficiency: 0.15
+  abstain_threshold: 0.62
+  min_elevated_signals: 2
+  min_elevated_level: 0.5
+alloc:
+  lambda_compute: 0.3
+  controller: fixed
+  budget_target_gpu_s: 0.0
+  control:
+    lambda_step: 0.25
+    halflife: 32
+    warmup: 8
+    slo_p95_ms: 0
+    slo_step: 0.2
+    max_queue_depth: 256
+    kv_high_water: 0.92
+  max_escalations: 1
+  probe_budget_gpu_s: 1.5
+  price:
+    contention_slope: 1.25446
+    fitted_from:
+      contention:
+        rows: runs/s5_contention/rows.json
+        r2: 0.9177
+        n: 4
+    headroom_slope_status: 'NOT FITTED: offered load VARIES across these rows ([2.0,
+      5.0, 9.0, 14.0] rps). kv_peak tracks load as well as pool size, so a slope fitted
+      here would be confounded. Use rows from a headroom sweep: pool varied, ra'
+run:
+  out_dir: runs
+  flush_every_s: 1.0
+  latency_stage_out_dir: /tmp/triage_runs

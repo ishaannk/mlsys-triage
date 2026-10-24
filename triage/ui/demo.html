@@ -1,0 +1,223 @@
+<title>Triage - right model, every request</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/png" href="/ui/logo.png">
+<style>
+  :root {
+    --surface:#fcfcfb; --panel:#f4f5f8; --panel-2:#eceef3; --hair:#e2e5ec;
+    --ink:#15171d; --ink-2:#3d4453; --muted:#5f6879; --faint:#8b93a4;
+    --sv:#3b5bdb; --verify:#2f9e8f; --route:#cf7a12; --single:#8a91a0;
+    --good:#2e9e5b; --risk:#d1495b;
+    --sv-soft:rgba(59,91,219,.10); --grid:#eaecf1;
+    --shadow:0 1px 2px rgba(20,24,40,.04),0 8px 24px rgba(20,24,40,.06);
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface:#131419; --panel:#1b1d24; --panel-2:#212430; --hair:#2a2d38;
+      --ink:#e9ebf2; --ink-2:#c2c7d4; --muted:#8b93a4; --faint:#69707f;
+      --sv:#6b8afd; --verify:#22c0ab; --route:#e0a24a; --single:#767d8d;
+      --good:#3ac06e; --risk:#e5697a;
+      --sv-soft:rgba(107,138,253,.14); --grid:#242732;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --surface:#fcfcfb; --panel:#f4f5f8; --panel-2:#eceef3; --hair:#e2e5ec;
+    --ink:#15171d; --ink-2:#3d4453; --muted:#5f6879; --faint:#8b93a4;
+    --sv:#3b5bdb; --verify:#2f9e8f; --route:#cf7a12; --single:#8a91a0;
+    --good:#2e9e5b; --risk:#d1495b; --sv-soft:rgba(59,91,219,.10); --grid:#eaecf1;
+  }
+  :root[data-theme="dark"] {
+    --surface:#131419; --panel:#1b1d24; --panel-2:#212430; --hair:#2a2d38;
+    --ink:#e9ebf2; --ink-2:#c2c7d4; --muted:#8b93a4; --faint:#69707f;
+    --sv:#6b8afd; --verify:#22c0ab; --route:#e0a24a; --single:#767d8d;
+    --good:#3ac06e; --risk:#e5697a; --sv-soft:rgba(107,138,253,.14); --grid:#242732;
+  }
+
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--surface); color:var(--ink); font-family:var(--sans);
+    line-height:1.55; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:1060px; margin:0 auto; padding:0 24px; }
+  .num { font-family:var(--mono); font-variant-numeric:tabular-nums; }
+  h1,h2,h3 { text-wrap:balance; letter-spacing:-.02em; line-height:1.12; margin:0; }
+  .eyebrow { font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--sv); font-weight:600; }
+  a { color:var(--sv); }
+
+  header { border-bottom:1px solid var(--hair); background:color-mix(in srgb,var(--surface) 88%,transparent);
+    position:sticky; top:0; z-index:10; backdrop-filter:blur(8px); }
+  .bar { display:flex; align-items:center; gap:12px; padding:11px 0; }
+  .logoimg { width:30px; height:30px; object-fit:contain; }
+  .logo { font-weight:750; font-size:16px; letter-spacing:-.02em; }
+  .prov { font-family:var(--mono); font-size:11px; color:var(--muted); display:flex; align-items:center; gap:6px; }
+  .dot { width:7px; height:7px; border-radius:50%; background:var(--good); box-shadow:0 0 0 3px color-mix(in srgb,var(--good) 22%,transparent); }
+  .spacer { flex:1; }
+  .cta { font-size:13px; font-weight:600; color:#fff; background:var(--sv); border-radius:999px;
+    padding:8px 16px; text-decoration:none; }
+  .themebtn { font-family:var(--mono); font-size:12px; color:var(--muted); background:var(--panel);
+    border:1px solid var(--hair); border-radius:8px; padding:6px 11px; cursor:pointer; }
+  .themebtn:hover { color:var(--ink); }
+
+  .hero { padding:60px 0 26px; }
+  .hero h1 { font-size:clamp(30px,5.2vw,54px); font-weight:770; }
+  .hero .thesis { font-size:clamp(16px,2.2vw,20px); color:var(--ink-2); max-width:58ch; margin-top:18px; }
+  .hero .thesis b { color:var(--ink); font-weight:650; }
+
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:36px 0 8px; }
+  .tile { background:var(--panel); border:1px solid var(--hair); border-radius:14px; padding:18px 18px 16px;
+    box-shadow:var(--shadow); }
+  .tile .big { font-family:var(--mono); font-size:30px; font-weight:600; letter-spacing:-.03em; line-height:1;
+    font-variant-numeric:tabular-nums; }
+  .tile .lbl { color:var(--muted); font-size:12.5px; margin-top:10px; }
+  .tile.hero-tile { background:linear-gradient(160deg,var(--sv-soft),transparent 70%); border-color:color-mix(in srgb,var(--sv) 32%,var(--hair)); }
+  .tile.hero-tile .big { color:var(--sv); }
+
+  section { padding:42px 0; border-top:1px solid var(--hair); }
+  section h2 { font-size:clamp(21px,3vw,28px); font-weight:720; }
+  section .lede { color:var(--muted); max-width:66ch; margin-top:10px; font-size:15px; }
+  .card { background:var(--panel); border:1px solid var(--hair); border-radius:16px; box-shadow:var(--shadow); }
+  .chart-card { padding:16px; margin-top:24px; overflow-x:auto; }
+  .chart-card img { display:block; width:100%; height:auto; min-width:560px; }
+  .theme-dark-only { display:none; }
+  :root[data-theme="dark"] .theme-light-only { display:none; }
+  :root[data-theme="dark"] .theme-dark-only { display:block; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .theme-light-only { display:none; }
+    :root:not([data-theme="light"]) .theme-dark-only { display:block; }
+  }
+
+  .tblwrap { overflow-x:auto; margin-top:22px; border:1px solid var(--hair); border-radius:14px; }
+  table { border-collapse:collapse; width:100%; font-size:13px; min-width:560px; }
+  th,td { padding:11px 13px; text-align:left; border-bottom:1px solid var(--hair); white-space:nowrap; }
+  thead th { color:var(--muted); font-weight:600; font-size:11.5px; letter-spacing:.04em; text-transform:uppercase;
+    background:var(--panel); }
+  tbody tr:last-child td { border-bottom:none; }
+  td.n, th.n { text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums; }
+  .save { color:var(--good); font-weight:600; }
+  tr.total td { font-weight:700; background:var(--sv-soft); }
+
+  .loop { margin-top:24px; display:flex; flex-direction:column; }
+  .step { display:grid; grid-template-columns:52px 1fr; gap:16px; padding:15px 0; border-bottom:1px dashed var(--hair); }
+  .step:last-child { border-bottom:none; }
+  .step .n { font-family:var(--mono); font-weight:600; font-size:13px; color:var(--surface); background:var(--sv);
+    width:34px; height:34px; border-radius:9px; display:grid; place-items:center; }
+  .step.stop .n { background:var(--good); }
+  .step.abst .n { background:var(--risk); }
+  .step .t { font-weight:640; font-size:14.5px; }
+  .step .d { color:var(--muted); font-size:13px; margin-top:3px; }
+  .step code { font-family:var(--mono); font-size:12px; background:var(--panel-2); padding:1px 6px; border-radius:5px; color:var(--ink-2); }
+
+  footer { padding:38px 0 58px; border-top:1px solid var(--hair); color:var(--muted); font-size:12.5px; }
+  footer h3 { font-size:13px; color:var(--ink-2); margin-bottom:10px; letter-spacing:0; }
+  footer ul { margin:0; padding-left:18px; display:flex; flex-direction:column; gap:6px; max-width:84ch; }
+  footer .flag { font-family:var(--mono); color:var(--sv); }
+  footer code { font-family:var(--mono); font-size:11.5px; background:var(--panel-2); padding:1px 6px; border-radius:5px; }
+
+  @media (max-width:760px) { .tiles { grid-template-columns:1fr 1fr; } }
+</style>
+
+<header>
+  <div class="wrap bar">
+    <img class="logoimg" src="/ui/logo.png" alt="">
+    <span class="logo">Triage</span>
+    <span class="prov"><span class="dot"></span>every number on this page is a real, measured API bill</span>
+    <span class="spacer"></span>
+    <button class="themebtn" id="themebtn">◐ theme</button>
+    <a class="cta" href="/app">Try it live →</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">right model, every request</div>
+    <h1>Free models answer.<br>You pay only when it <span style="color:var(--sv)">matters</span>.</h1>
+    <p class="thesis">Triage sends every request to a <b>free open-source model</b> first, watches how that
+      answer behaves — uncertainty, instability, self-contradiction — and escalates to
+      <b>your paid model</b> only when the signals prove it's needed. Unanswerable requests are
+      <b>refused, not hallucinated</b>.</p>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <!-- ===== CURVE ===== -->
+  <section>
+    <div class="eyebrow">measured on mt-bench · 80 questions · in-sample sweep</div>
+    <h2 id="curveTitle">Big cost cut at near-paid quality.</h2>
+    <p class="lede">One point per escalation threshold — this whole curve is the
+      <em>in-sample</em> sweep across all 80 questions. Headline numbers are reported
+      on a <b>held-out test split</b> (below): Nemotron-Nano-9B → GPT-4o holds
+      82% saved at ~101% of GPT-4o quality (wide CI); the Ministral pair barely
+      escalates on held-out, so it is really "the free model alone at ~99% of
+      GPT-4o quality." No tuning on the test set.</p>
+    <figure class="card chart-card">
+      <img class="theme-light-only" src="/ui/assets/curve_light.svg" alt="Cost-quality curve, light theme">
+      <img class="theme-dark-only" src="/ui/assets/curve_dark.svg" alt="Cost-quality curve, dark theme">
+    </figure>
+  </section>
+
+  <!-- ===== RECEIPTS ===== -->
+  <section>
+    <div class="eyebrow">the receipts · 30 mixed queries · real GPT-4o bill</div>
+    <h2>Same queries. Two bills.</h2>
+    <p class="lede">12 easy, 10 medium, 8 hard — each sent to always-GPT-4o and to Triage
+      (free llama-lane first, GPT-4o only on signal). 24 of 30 answers cost $0.</p>
+    <div class="tblwrap">
+      <table>
+        <thead><tr>
+          <th>Category</th><th class="n">N</th><th class="n">Always-GPT-4o</th>
+          <th class="n">Triage</th><th class="n">Escalated</th><th class="n">Saved</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Easy — lookups, small tasks</td><td class="n">12</td><td class="n">$0.00513</td><td class="n">$0.00020</td><td class="n">1</td><td class="n save">96.1%</td></tr>
+          <tr><td>Medium — light reasoning</td><td class="n">10</td><td class="n">$0.02012</td><td class="n">$0.00813</td><td class="n">3</td><td class="n save">59.6%</td></tr>
+          <tr><td>Hard — proofs, multi-step</td><td class="n">8</td><td class="n">$0.03848</td><td class="n">$0.01114</td><td class="n">2</td><td class="n save">71.0%</td></tr>
+          <tr class="total"><td>Total</td><td class="n">30</td><td class="n">$0.06373</td><td class="n">$0.01947</td><td class="n">6</td><td class="n save">69.5%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== ALGORITHM ===== -->
+  <section>
+    <div class="eyebrow">how it decides</div>
+    <h2>Observe, then spend.</h2>
+    <div class="loop">
+      <div class="step stop"><div class="n">1</div><div><div class="t">Free model answers</div><div class="d">One pass on the open-source model. Token <code>logprobs</code> give an uncertainty signal at zero extra cost. Pure arithmetic never reaches an LLM — a calculator tool answers exactly, for free.</div></div></div>
+      <div class="step stop"><div class="n">2</div><div><div class="t">Confident → ship it</div><div class="d">Low uncertainty ends the request here. Measured across our runs this is 42–95% of requests (escalation rate 5–58%), and it costs $0.</div></div></div>
+      <div class="step"><div class="n">3</div><div><div class="t">Elevated → measure deeper</div><div class="d">Resample agreement · self-check · retrieved evidence. Expensive signals run only when the free one is already suspicious.</div></div></div>
+      <div class="step"><div class="n">4</div><div><div class="t">Proven risky → your paid model</div><div class="d">Cheapest fix first: retrieve → verify (can revise) → escalate to the model you chose for hard tasks.</div></div></div>
+      <div class="step abst"><div class="n">5</div><div><div class="t">Unanswerable → refuse</div><div class="d">If combined risk stays high, Triage returns <code>PENDING_REVIEW</code> instead of a confident hallucination.</div></div></div>
+    </div>
+  </section>
+
+  <footer>
+    <h3>All truth — what these numbers are</h3>
+    <ul>
+      <li><span class="flag">MEASURED</span> — MT-Bench: 80 lm-sys questions (first turns), free small model vs paid model, both answers scored 1–10 by an LLM judge (gpt-4o-mini), escalation threshold swept. Headlines are reported on a <b>held-out test split</b> (threshold picked on a tuning half, never tuned on test). Nemotron-Nano-9B → GPT-4o: <b>82.0% saved (CI 67–95%) at 101.2% quality (CI 96–108%)</b>, 6/40 escalated (<code>data/mtbench_nemotron_holdout.json</code>). Ministral-8B → GPT-4o: at the tuned threshold 0/40 test questions escalated → ~$0 at 99.4% of GPT-4o quality, CI 93–105% (<code>data/mtbench_gpt4o_holdout.json</code>).</li>
+      <li><span class="flag">MEASURED</span> — 30-query bill: real OpenAI charges, July 2026 list prices. Raw data: <code>data/showtime.json</code>.</li>
+      <li><span class="flag">NEGATIVES</span> — reported, not buried: a GSM8K run over-escalated to 51.1% accuracy (<code>data/rigor_gsm8k.json</code>); after the fix it matched the small model but cost 29.1% more than always-big (<code>data/rigor_gsm8k_fixed.json</code>). Scope is written down in <code>CHARTER.md</code>.</li>
+      <li><span class="flag">LIMITS</span> — the curve chart is a single in-sample run; escalation is rare on MT-Bench so held-out CIs are wide; LLM-judge scores carry noise; free-lane models run on provider free tiers (you pay $0, subject to their rate limits).</li>
+      <li><span class="flag">REPRODUCE</span> — <code>python scripts/mtbench.py</code> · <code>python scripts/showtime.py</code> — with any model pair you pick.</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+const btn = document.getElementById('themebtn');
+btn.onclick = () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur==='dark' ? 'light' : cur==='light' ? 'dark'
+    : (matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark');
+  document.documentElement.setAttribute('data-theme', next);
+};
+
+// Headline tiles — real measured numbers (see footer for provenance).
+document.getElementById('tiles').innerHTML = [
+  {big:'82%', lbl:'saved on MT-Bench held-out (Nemotron-9B → GPT-4o) at ~101% of GPT-4o quality — CI wide', hero:true},
+  {big:'69.5%', lbl:'saved on a 30-query mixed live bill ($0.0637 → $0.0195)'},
+  {big:'24 / 30', lbl:'answers that cost exactly $0 (free model, calculator, retrieval)'},
+  {big:'held-out', lbl:'headline threshold picked on a tuning half, reported on the untouched half — never tuned on test'},
+].map(t=>`<div class="tile ${t.hero?'hero-tile':''}"><div class="big num">${t.big}</div><div class="lbl">${t.lbl}</div></div>`).join('');
+</script>

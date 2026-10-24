@@ -1,0 +1,113 @@
+[
+  {
+    "rate_rps": 2.0,
+    "contention_slope": 1.25446,
+    "triage": {
+      "n": 400,
+      "escalated": 0.0,
+      "gpu_s": 0.4957,
+      "gpu_s_ci": [
+        0.4644,
+        0.5269
+      ],
+      "p95_ms": 7309.9,
+      "quality": 0.4225,
+      "quality_ci": [
+        0.36,
+        0.485
+      ]
+    },
+    "triage_load_blind": {
+      "n": 400,
+      "escalated": 0.48,
+      "gpu_s": 0.8616,
+      "gpu_s_ci": [
+        0.7262,
+        0.997
+      ],
+      "p95_ms": 187070.5,
+      "quality": 0.49,
+      "quality_ci": [
+        0.4275,
+        0.5525
+      ]
+    },
+    "delta_quality_pp": -6.75,
+    "delta_gpu_s_pct": -42.47,
+    "delta_p95_pct": -96.09
+  },
+  {
+    "rate_rps": 6.0,
+    "contention_slope": 1.25446,
+    "triage": {
+      "n": 400,
+      "escalated": 0.0,
+      "gpu_s": 0.1883,
+      "gpu_s_ci": [
+        0.1785,
+        0.198
+      ],
+      "p95_ms": 27497.6,
+      "quality": 0.4225,
+      "quality_ci": [
+        0.3575,
+        0.485
+      ]
+    },
+    "triage_load_blind": {
+      "n": 400,
+      "escalated": 0.495,
+      "gpu_s": 0.9067,
+      "gpu_s_ci": [
+        0.5686,
+        1.2448
+      ],
+      "p95_ms": 301831.0,
+      "quality": 0.5,
+      "quality_ci": [
+        0.4375,
+        0.5625
+      ]
+    },
+    "delta_quality_pp": -7.75,
+    "delta_gpu_s_pct": -79.23,
+    "delta_p95_pct": -90.89
+  },
+  {
+    "rate_rps": 12.0,
+    "contention_slope": 1.25446,
+    "triage": {
+      "n": 400,
+      "escalated": 0.0,
+      "gpu_s": 0.1317,
+      "gpu_s_ci": [
+        0.1241,
+        0.1393
+      ],
+      "p95_ms": 50108.2,
+      "quality": 0.4275,
+      "quality_ci": [
+        0.365,
+        0.49
+      ]
+    },
+    "triage_load_blind": {
+      "n": 400,
+      "escalated": 0.4925,
+      "gpu_s": 0.8973,
+      "gpu_s_ci": [
+        0.5745,
+        1.2201
+      ],
+      "p95_ms": 339498.8,
+      "quality": 0.4975,
+      "quality_ci": [
+        0.435,
+        0.56
+      ]
+    },
+    "delta_quality_pp": -7.0,
+    "delta_gpu_s_pct": -85.32,
+    "delta_p95_pct": -85.24
+  }
+]

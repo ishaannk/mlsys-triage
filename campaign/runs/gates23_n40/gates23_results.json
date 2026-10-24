@@ -1,0 +1,6 @@
+{
+  "s2_mid_rc": 0,
+  "kv_blocks": "/workspace/logs/big.log:INFO 09-13 19:53:34 gpu_executor.py:122] # GPU blocks: 1058, # CPU blocks: 1024\n/workspace/logs/mid.log:INFO 09-13 19:44:23 gpu_executor.py:122] # GPU blocks: 8939, # CPU blocks: 1365\n/workspace/logs/small.log:INFO 09-13 19:54:43 gpu_executor.py:122] # GPU blocks: 4355, # CPU blocks: 4681",
+  "s2_cascade_rc": 0,
+  "s3_rc": 0
+}

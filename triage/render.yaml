@@ -1,0 +1,23 @@
+# Render.com blueprint for Triage.
+# Dashboard -> New -> Blueprint -> pick this repo -> set the `nvidia` secret.
+# Free plan: sleeps after ~15 min idle, wakes on request (first hit is slow).
+# Do NOT set OPENAI_API_KEY on a public demo — visitors bring their own key
+# through the UI; leaving it unset protects your OpenAI credit.
+
+services:
+  - type: web
+    name: triage
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: nvidia
+        sync: false          # set the value in the Render dashboard (secret)
+      - key: RETRIEVAL_BACKEND
+        value: local
+      - key: TELEMETRY_DB
+        value: data/telemetry.db

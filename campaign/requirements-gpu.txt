@@ -1,0 +1,6 @@
+# Pod only. PIN THE vLLM VERSION AT BUILD TIME and write it into
+# docs/substrate_verified.md - metric names drift between releases and a renamed
+# metric does not error, it becomes zero.
+#
+#   vllm==<pin whatever is current on the pod>
+nvidia-ml-py>=12.535     # pynvml; the sampler falls back to nvidia-smi without it

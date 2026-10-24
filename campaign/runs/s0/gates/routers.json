@@ -1,0 +1,35 @@
+{
+  "prompt_only": {
+    "uses": [
+      "prompt"
+    ],
+    "n_train": 66,
+    "train_auc": 1.0,
+    "note": ""
+  },
+  "prompt_only_evidence": {
+    "uses": [
+      "prompt",
+      "evidence"
+    ],
+    "n_train": 66,
+    "train_auc": 1.0,
+    "note": ""
+  },
+  "hybrid_llm": {
+    "uses": [
+      "prompt"
+    ],
+    "n_train": 66,
+    "train_auc": 1.0,
+    "note": ""
+  },
+  "jitkrittum": {
+    "uses": [
+      "signals"
+    ],
+    "n_train": 66,
+    "train_auc": 0.7256198347107438,
+    "note": ""
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "stage": "rp_12",
+  "run_id": "rp_12",
+  "n_planned": 800,
+  "n_executed": 800,
+  "n_resumed": 0,
+  "n_error": 0,
+  "wall_start": 20903234.71482086,
+  "wall_end": 20903646.597088728,
+  "wall_s": 411.88226786628366,
+  "n_devices": 1,
+  "substrate": "vllm_local",
+  "config_hash": "bdde16b416316064",
+  "mode": "arrival",
+  "rate_rps": 12.0,
+  "gpu_seconds_per_request": 0.5148528348328546
+}

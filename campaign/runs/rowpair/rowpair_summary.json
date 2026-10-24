@@ -1,0 +1,39 @@
+[
+  {
+    "rate_rps": 2.0,
+    "contention_slope": 1.25446,
+    "triage": {
+      "n": 20,
+      "escalated": 0.1,
+      "gpu_s": 0.5319,
+      "gpu_s_ci": [
+        0.5319,
+        0.5319
+      ],
+      "p95_ms": 7217.3,
+      "quality": 0.05,
+      "quality_ci": [
+        0.0,
+        0.15
+      ]
+    },
+    "triage_load_blind": {
+      "n": 20,
+      "escalated": 0.9,
+      "gpu_s": 1.2275,
+      "gpu_s_ci": [
+        1.2275,
+        1.2275
+      ],
+      "p95_ms": 16607.8,
+      "quality": 0.05,
+      "quality_ci": [
+        0.0,
+        0.15
+      ]
+    },
+    "delta_quality_pp": 0.0,
+    "delta_gpu_s_pct": -56.67,
+    "delta_p95_pct": -56.54
+  }
+]

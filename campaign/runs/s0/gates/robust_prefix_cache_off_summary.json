@@ -1,0 +1,17 @@
+{
+  "stage": "robust_prefix_cache_off",
+  "run_id": "robust_prefix_cache_off",
+  "n_planned": 900,
+  "n_executed": 900,
+  "n_resumed": 0,
+  "n_error": 0,
+  "wall_start": 3786538.060276101,
+  "wall_end": 3786549.764448031,
+  "wall_s": 11.704171929974109,
+  "n_devices": 1,
+  "substrate": "vllm_local",
+  "config_hash": "ef38f6cfb6792f0e",
+  "mode": "sequential",
+  "rate_rps": 1.0,
+  "gpu_seconds_per_request": 0.01300463547774901
+}

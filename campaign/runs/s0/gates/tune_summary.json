@@ -1,0 +1,17 @@
+{
+  "stage": "tune",
+  "run_id": "tune",
+  "n_planned": 132,
+  "n_executed": 132,
+  "n_resumed": 0,
+  "n_error": 0,
+  "wall_start": 2267629.244155212,
+  "wall_end": 2268815.752661809,
+  "wall_s": 1186.5085065970197,
+  "n_devices": 1,
+  "substrate": "vllm_local",
+  "config_hash": "25c33f373de17cdd",
+  "mode": "sequential",
+  "rate_rps": 1.0,
+  "gpu_seconds_per_request": 8.98870080755318
+}

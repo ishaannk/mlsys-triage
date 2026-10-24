@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Triage — right model, every request</title>
+<link rel="icon" type="image/png" href="/ui/logo.png">
+<style>
+  /* ---- Material-3-inspired tokens (design.google palette) ---- */
+  :root{
+    --blue:#1a73e8; --blue-ink:#174ea6; --purple:#7c4dff; --amber:#e37400;
+    --teal:#009688; --red:#d93025; --green:#188038;
+    --bg:#ffffff; --surface:#f8f9fa; --surface-2:#f1f3f4; --card:#ffffff;
+    --ink:#202124; --ink-2:#5f6368; --ink-3:#80868b; --outline:#dadce0;
+    --shadow:0 1px 2px rgba(60,64,67,.1),0 2px 6px rgba(60,64,67,.08);
+    --shadow-lg:0 2px 6px rgba(60,64,67,.12),0 8px 24px rgba(60,64,67,.12);
+    --user-bubble:#e8f0fe; --user-ink:#1a3c78;
+    --radius:16px; --radius-sm:10px;
+    --font:'Google Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --mono:'Roboto Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  html[data-theme="dark"]{
+    --blue:#8ab4f8; --blue-ink:#aecbfa; --purple:#b388ff; --amber:#fdb95d;
+    --teal:#4db6ac; --red:#f28b82; --green:#81c995;
+    --bg:#202124; --surface:#292a2d; --surface-2:#303134; --card:#292a2d;
+    --ink:#e8eaed; --ink-2:#bdc1c6; --ink-3:#9aa0a6; --outline:#3c4043;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 2px 6px rgba(0,0,0,.25);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.4);
+    --user-bubble:#394457; --user-ink:#d7e3ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);
+    font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;height:100vh;transition:background .25s,color .25s}
+
+  /* ---- Top app bar ---- */
+  header{display:flex;align-items:center;gap:14px;padding:12px 22px;
+    background:var(--card);border-bottom:1px solid var(--outline);z-index:5}
+  .logo{width:34px;height:34px;border-radius:9px;flex:none;object-fit:contain}
+  .brand h1{font-size:16px;margin:0;font-weight:600;letter-spacing:-.2px}
+  .brand p{font-size:12px;margin:0;color:var(--ink-3)}
+  header .spacer{flex:1}
+  .ctrl{display:flex;align-items:center;gap:8px}
+  select,.iconbtn{font-family:var(--font);font-size:13px;color:var(--ink);
+    background:var(--surface);border:1px solid var(--outline);border-radius:999px;
+    padding:8px 14px;cursor:pointer;transition:background .15s,border-color .15s}
+  header select{max-width:240px;text-overflow:ellipsis}
+  @media (max-width:980px){ header select{max-width:160px} .brand p{display:none} }
+  select:hover,.iconbtn:hover{background:var(--surface-2);border-color:var(--ink-3)}
+  .iconbtn{width:40px;height:40px;padding:0;display:grid;place-items:center;border-radius:50%}
+  .iconbtn svg{width:20px;height:20px}
+  .toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2);
+    background:var(--surface);border:1px solid var(--outline);border-radius:999px;padding:6px 12px 6px 10px;cursor:pointer;user-select:none}
+  .toggle input{appearance:none;width:32px;height:18px;border-radius:999px;background:var(--outline);position:relative;cursor:pointer;transition:background .2s;margin:0}
+  .toggle input:checked{background:var(--blue)}
+  .toggle input::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s}
+  .toggle input:checked::after{transform:translateX(14px)}
+
+  /* ---- Savings strip ---- */
+  .meter{display:flex;gap:14px;padding:14px 22px;background:var(--surface);
+    border-bottom:1px solid var(--outline);overflow-x:auto}
+  .stat{flex:1;min-width:150px;background:var(--card);border:1px solid var(--outline);
+    border-radius:var(--radius-sm);padding:12px 16px;box-shadow:var(--shadow)}
+  .stat .k{font-size:11.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .stat .v{font-size:22px;font-weight:600;margin-top:3px;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+  .stat .sub{font-size:11.5px;color:var(--ink-3);margin-top:1px}
+  .stat.saved .v{color:var(--green)}
+  .stat.saved.neg .v{color:var(--amber)}
+  .bar{height:6px;border-radius:999px;background:var(--surface-2);margin-top:8px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:var(--green);width:0;transition:width .5s}
+
+  /* ---- Chat ---- */
+  main{flex:1;overflow-y:auto;padding:26px 0}
+  .thread{max-width:780px;margin:0 auto;padding:0 22px;display:flex;flex-direction:column;gap:22px}
+  .empty{text-align:center;color:var(--ink-3);margin-top:8vh}
+  .empty h2{color:var(--ink-2);font-weight:500;font-size:20px;margin:0 0 8px}
+  .chips-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
+  .suggest{background:var(--surface);border:1px solid var(--outline);border-radius:999px;
+    padding:8px 15px;font-size:13px;color:var(--ink-2);cursor:pointer}
+  .suggest:hover{background:var(--surface-2);color:var(--ink)}
+
+  .msg{display:flex;flex-direction:column;gap:8px}
+  .msg.user{align-items:flex-end}
+  .bubble{max-width:88%;padding:12px 16px;border-radius:var(--radius);font-size:14.5px;white-space:pre-wrap;word-wrap:break-word}
+  .msg.user .bubble{background:var(--user-bubble);color:var(--user-ink);border-bottom-right-radius:5px}
+  .msg.bot .bubble{background:var(--card);border:1px solid var(--outline);border-bottom-left-radius:5px;box-shadow:var(--shadow)}
+  .msg.bot.abstain .bubble{border-color:var(--red);background:color-mix(in srgb,var(--red) 8%,var(--card))}
+
+  /* ---- Routing X-ray card ---- */
+  .xray{max-width:88%;background:var(--surface);border:1px solid var(--outline);
+    border-radius:var(--radius-sm);padding:10px 12px;font-size:12.5px}
+  .xline{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+  .pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;
+    font-size:11.5px;font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .pill.small{background:color-mix(in srgb,var(--blue) 16%,transparent);color:var(--blue-ink)}
+  .pill.big{background:color-mix(in srgb,var(--purple) 18%,transparent);color:var(--purple)}
+  .pill.tier{background:var(--surface-2);color:var(--ink-2)}
+  .pill.cost{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green)}
+  .pill.tok{background:var(--surface-2);color:var(--ink-2)}
+  .pill.pf{background:color-mix(in srgb,var(--amber) 16%,transparent);color:var(--amber)}
+  .arrow{color:var(--ink-3);font-weight:700}
+  .xray .why{color:var(--ink-3);margin-top:7px;font-size:12px;line-height:1.4}
+  .disc{margin-top:8px;border-top:1px dashed var(--outline);padding-top:8px;display:none}
+  .disc.open{display:block}
+  .discbtn{font-size:11.5px;color:var(--blue);cursor:pointer;margin-top:7px;user-select:none;font-weight:600}
+  .sig{display:grid;grid-template-columns:120px 1fr 46px;align-items:center;gap:8px;margin:5px 0}
+  .sig .lbl{color:var(--ink-2);font-size:11.5px}
+  .sig .track{height:6px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+  .sig .track > i{display:block;height:100%;border-radius:999px}
+  .sig .num{font-size:11.5px;text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .ev{font-size:11.5px;color:var(--ink-3);margin-top:6px}
+  .ev b{color:var(--ink-2);font-weight:600}
+
+  /* typing */
+  .typing{display:inline-flex;gap:4px;padding:4px 2px}
+  .typing i{width:7px;height:7px;border-radius:50%;background:var(--ink-3);animation:bl 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+  @keyframes bl{0%,60%,100%{opacity:.25}30%{opacity:1}}
+
+  /* ---- Composer ---- */
+  footer{border-top:1px solid var(--outline);background:var(--card);padding:14px 22px}
+  .composer{max-width:780px;margin:0 auto}
+  .inrow{display:flex;gap:10px;align-items:flex-end;background:var(--surface);
+    border:1px solid var(--outline);border-radius:26px;padding:6px 6px 6px 18px;box-shadow:var(--shadow)}
+  .inrow:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 18%,transparent)}
+  textarea{flex:1;border:0;background:transparent;resize:none;color:var(--ink);
+    font-family:var(--font);font-size:15px;line-height:1.5;max-height:160px;padding:8px 0;outline:none}
+  .send{width:44px;height:44px;border-radius:50%;border:0;background:var(--blue);color:#fff;
+    cursor:pointer;flex:none;display:grid;place-items:center;transition:background .15s,transform .1s}
+  .send:hover{background:var(--blue-ink)}.send:active{transform:scale(.94)}
+  .send:disabled{background:var(--outline);cursor:default}
+  .send svg{width:20px;height:20px;fill:#fff}
+  .subrow{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:9px;padding:0 6px;color:var(--ink-3);font-size:12px}
+  .subrow .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+  a.link{color:var(--blue);text-decoration:none}a.link:hover{text-decoration:underline}
+  @media(max-width:560px){.meter{flex-wrap:wrap}.stat{min-width:calc(50% - 7px)}.brand p{display:none}}
+</style>
+</head>
+<body>
+<style>
+  /* ---------- welcome / setup modal ---------- */
+  .ovl{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;z-index:50}
+  .ovl.hidden{display:none}
+  .setup{background:var(--surface);border:1px solid var(--outline);border-radius:24px;
+    width:min(560px,92vw);max-height:90vh;overflow-y:auto;padding:32px 34px;box-shadow:0 24px 64px rgba(0,0,0,.28)}
+  .setup h2{font-size:24px;font-weight:600;letter-spacing:-.2px;margin-bottom:6px}
+  .setup .sub{color:var(--ink-2,var(--ink-3));font-size:14px;line-height:1.55;margin-bottom:22px}
+  .setup label.q{display:block;font-size:13px;font-weight:600;margin:18px 0 6px}
+  .setup label.q span{font-weight:400;color:var(--ink-3)}
+  .setup select,.setup input[type=password]{width:100%;padding:11px 12px;border-radius:12px;
+    border:1px solid var(--outline);background:var(--surface-2);color:var(--ink);font-family:var(--font);font-size:13.5px}
+  .setup .hint{font-size:11.5px;color:var(--ink-3);margin-top:5px;line-height:1.5}
+  .setup .row{display:flex;gap:10px;margin-top:26px;align-items:center;flex-wrap:wrap}
+  .setup .primary{background:var(--blue);color:#fff;border:none;border-radius:999px;
+    padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font)}
+  .setup .primary:hover{filter:brightness(1.08)}
+  .setup .ghost{background:none;border:1px solid var(--outline);border-radius:999px;color:var(--ink);
+    padding:10px 18px;font-size:13.5px;cursor:pointer;font-family:var(--font);text-decoration:none}
+  .setup .ghost:hover{background:var(--surface-2)}
+</style>
+
+<div class="ovl hidden" id="setupOvl">
+  <div class="setup" role="dialog" aria-modal="true">
+    <h2>Welcome to Triage</h2>
+    <div class="sub">Every request is routed to the <b>right-sized model</b>: small tasks stay on a
+      fast open-source model at no cost, and only genuinely hard or risky requests escalate to your
+      premium model. You see the model, tokens, and cost of every answer — and your running savings.</div>
+
+    <label class="q">Which model should handle your small tasks?
+      <span>— lookups, chat, summaries, everyday questions</span></label>
+    <select id="setupSmall"></select>
+
+    <label class="q">Which model should handle your hard tasks?
+      <span>— deep reasoning, proofs, code, high-stakes answers</span></label>
+    <select id="setupBig"></select>
+
+    <label class="q">API key <span>— required only for paid models</span></label>
+    <input type="password" id="setupKey" placeholder="sk-…  (OpenAI API key)" autocomplete="off">
+    <div class="hint">Your key is stored in this browser only and attached per request.
+      It is never saved on our servers or shown in logs. Open-source models need no key.</div>
+    <div class="hint" id="setupWarn" style="display:none;color:#d93025;font-weight:600"></div>
+
+    <div class="row">
+      <button class="primary" id="setupGo">Start chatting</button>
+      <a class="ghost" href="/">← Back to the story page</a>
+    </div>
+  </div>
+</div>
+
+<header>
+  <img class="logo" src="/ui/logo.png" alt="Triage">
+  <div class="brand">
+    <h1>Triage</h1>
+    <p>right model, every request</p>
+  </div>
+  <div class="spacer"></div>
+  <div class="ctrl">
+    <label class="toggle" title="Allow signal-driven small→large escalation">
+      <input type="checkbox" id="escToggle" checked> escalation
+    </label>
+    <select id="modelSel" title="Small-task model (open-source = free)"></select>
+    <span style="color:var(--ink-3);font-size:13px">→</span>
+    <select id="bigSel" title="Hard-task model (usually your paid model)"></select>
+    <button class="iconbtn" id="setupBtn" title="Model & API-key settings">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 8a4 4 0 100 8 4 4 0 000-8zm9 4a7.8 7.8 0 00-.1-1.2l2-1.6-2-3.4-2.4 1a8 8 0 00-2-1.2L16 3h-4l-.5 2.6a8 8 0 00-2 1.2l-2.4-1-2 3.4 2 1.6a7.9 7.9 0 000 2.4l-2 1.6 2 3.4 2.4-1a8 8 0 002 1.2L12 21h4l.5-2.6a8 8 0 002-1.2l2.4 1 2-3.4-2-1.6c.06-.4.1-.8.1-1.2z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+    <button class="iconbtn" id="themeBtn" title="Toggle dark / light">
+      <svg id="themeIcon" viewBox="0 0 24 24"></svg>
+    </button>
+  </div>
+</header>
+
+<div class="meter">
+  <div class="stat"><div class="k">Triage spent</div><div class="v" id="mSv">$0.00</div><div class="sub" id="mMsgs">0 messages</div></div>
+  <div class="stat"><div class="k">Always-big would cost</div><div class="v" id="mBig">$0.00</div><div class="sub" id="mBigName">—</div></div>
+  <div class="stat saved" id="mSavedCard"><div class="k">You saved</div><div class="v" id="mSaved">0%</div>
+    <div class="bar"><i id="mSavedBar"></i></div></div>
+  <div class="stat"><div class="k">Escalations</div><div class="v" id="mEsc">0</div><div class="sub" id="mEscSub">big-model calls used</div></div>
+</div>
+
+<main id="main">
+  <div class="thread" id="thread">
+    <div class="empty" id="empty">
+      <h2>Ask anything — watch it route.</h2>
+      <div>Easy questions stay on the cheap model. Hard or risky ones escalate to the big one.<br>Every message shows the model, tokens, cost, and your running savings.</div>
+      <div class="chips-row" id="suggests"></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="composer">
+    <div class="inrow">
+      <textarea id="input" rows="1" placeholder="Message Triage…"></textarea>
+      <button class="send" id="send" title="Send"><svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button>
+    </div>
+    <div class="subrow">
+      <span class="dot"></span><span id="status">ready</span>
+      <span>·</span><span>tokens + cost estimated per message</span>
+      <span>·</span><a class="link" href="/">story page ↗</a>
+      <span>·</span><a class="link" href="/learning" target="_blank">learned thresholds ↗</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const fmt$ = v => v>=0.01 ? '$'+v.toFixed(2) : '$'+v.toFixed(6);
+const commas = n => n.toLocaleString();
+const state = { models:{}, small:null, big:null, key:'', totals:{sv:0, big:0, n:0, esc:0} };
+
+/* ---------- theme ---------- */
+const SUN='<path d="M12 7a5 5 0 100 10 5 5 0 000-10zM12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" fill="none" stroke="#bdc1c6" stroke-width="2" stroke-linecap="round"/>';
+const MOON='<path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z" fill="#5f6368"/>';
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.svTheme=t;
+  $('#themeIcon').innerHTML = t==='dark'?SUN:MOON;}
+setTheme(localStorage.svTheme || (matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+$('#themeBtn').onclick=()=>setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');
+
+/* ---------- model catalog ---------- */
+async function loadModels(){
+  try{
+    const d = await (await fetch('/models')).json();
+    const sel = $('#modelSel'), bsel = $('#bigSel');
+    // Curated catalog: hide UI-hidden + subscription-gated models, and hide any
+    // FREE model whose provider is dead (mock) — nothing a visitor picks should
+    // ever answer with canned mock text. Paid models stay: a BYO key wakes them.
+    d.models = d.models.filter(m=>!m.hidden && !m.requires_subscription
+      && !(m.is_mock && (m.cost_out||0)===0));
+    d.models.forEach(m=>{ state.models[m.id]=m; });
+    const price = m => (m.cost_out||0)===0 ? 'free · open-source' : `$${m.cost_in}/${m.cost_out} per 1M`;
+    // Two distinct lanes: role:"small" = everyday tasks, role:"big" = heavy tasks.
+    const smalls = d.models.filter(m=>m.role==='small')
+      .sort((a,b)=>(a.cost_out||0)-(b.cost_out||0) || (a.size_b||999)-(b.size_b||999));
+    const bigs = d.models.filter(m=>m.role==='big')
+      .sort((a,b)=>(b.cost_out||0)-(a.cost_out||0) || (b.size_b||0)-(a.size_b||0));
+    smalls.forEach(m=>{
+      const o=document.createElement('option'); o.value=m.id;
+      o.textContent=`${m.label}  ·  ${price(m)}`;
+      if(m.default_small) o.selected=true; sel.appendChild(o);
+    });
+    bigs.forEach(m=>{
+      const o=document.createElement('option'); o.value=m.id;
+      o.textContent=`${m.label}  ·  ${price(m)}`;
+      bsel.appendChild(o);
+    });
+    state.small = sel.value || d.models[0].id;
+    // Default hard model: the small model's escalate_to, else gpt-4o if present.
+    const def = (state.models[state.small]||{}).escalate_to;
+    bsel.value = (def && state.models[def]) ? def : (state.models['gpt-4o'] ? 'gpt-4o' : bsel.value);
+    state.big = bsel.value;
+    sel.onchange=()=>{ state.small=sel.value;
+      const e=(state.models[state.small]||{}).escalate_to;
+      if(e && state.models[e]){ bsel.value=e; state.big=e; } refreshBigName(); };
+    bsel.onchange=()=>{ state.big=bsel.value; refreshBigName();
+      if(state.guardBig) state.guardBig(); };
+    refreshBigName();
+    initSetup(d.models);
+  }catch(e){ $('#status').textContent='could not load /models'; }
+}
+
+/* ---------- welcome / setup wizard (first visit + settings button) ---------- */
+function initSetup(models){
+  const price = m => (m.cost_out||0)===0 ? 'free · open-source' : `paid · $${m.cost_in}/$${m.cost_out} per 1M`;
+  const fill = (el, sorted, defId) => {
+    el.innerHTML='';
+    const free=document.createElement('optgroup'); free.label='Free · open-source';
+    const paid=document.createElement('optgroup'); paid.label='Paid · bring your API key';
+    sorted.forEach(m=>{
+      const o=document.createElement('option'); o.value=m.id;
+      o.textContent=`${m.label}  ·  ${price(m)}`;
+      ((m.cost_out||0)===0?free:paid).appendChild(o);
+    });
+    el.appendChild(free); el.appendChild(paid);
+    if(defId && models.some(m=>m.id===defId)) el.value=defId;
+  };
+  const bySize=models.filter(m=>m.role==='small')
+    .sort((a,b)=>(a.cost_out||0)-(b.cost_out||0)||(a.size_b||999)-(b.size_b||999));
+  const byPower=models.filter(m=>m.role==='big')
+    .sort((a,b)=>(b.cost_out||0)-(a.cost_out||0)||(b.size_b||0)-(a.size_b||0));
+  // Keyless visitors default to a FREE hard-task model (no key wall on first
+  // click); a paid pick is one dropdown away and the guard explains the key.
+  const freeBig = state.models['nemotron-super-49b'] || byPower.find(m=>(m.cost_out||0)===0);
+  const defBig = localStorage.svBig || (localStorage.svKey ? state.big : (freeBig && freeBig.id) || state.big);
+  fill($('#setupSmall'), bySize, localStorage.svSmall || state.small);
+  fill($('#setupBig'), byPower, defBig);
+  $('#setupKey').value = localStorage.svKey || '';
+
+  const isPaid = id => ((state.models[id]||{}).cost_out||0) > 0;
+  const warn = msg => { const w=$('#setupWarn'); w.textContent=msg; w.style.display=msg?'block':'none'; };
+  const apply=()=>{
+    const big=$('#setupBig').value, key=($('#setupKey').value||'').trim();
+    // Guard: a paid hard-task model without an API key cannot work — block it.
+    if(isPaid(big) && !key){
+      warn(`${lbl(big)} is a paid model — paste your API key above, or pick a free hard-task model.`);
+      return;
+    }
+    warn('');
+    state.small=$('#setupSmall').value; state.big=big; state.key=key;
+    localStorage.svSmall=state.small; localStorage.svBig=state.big;
+    if(state.key) localStorage.svKey=state.key; else localStorage.removeItem('svKey');
+    $('#modelSel').value=state.small; $('#bigSel').value=state.big;
+    localStorage.svSetup='1'; refreshBigName();
+    $('#setupOvl').classList.add('hidden');
+  };
+  const openSetup = msg => { fill($('#setupSmall'),bySize,state.small);
+    fill($('#setupBig'),byPower,state.big); $('#setupKey').value=localStorage.svKey||'';
+    warn(msg||''); $('#setupOvl').classList.remove('hidden'); };
+  state.guardBig = () => {   // used by header dropdown + send()
+    if($('#escToggle').checked && isPaid(state.big) && !state.key){
+      openSetup(`${lbl(state.big)} is a paid model — add your API key to use it, or pick a free hard-task model.`);
+      return false;
+    }
+    return true;
+  };
+  $('#setupGo').onclick=apply;
+  $('#setupBtn').onclick=()=>openSetup();
+  // restore saved choices; greet on first visit only
+  if(localStorage.svSmall && models.some(m=>m.id===localStorage.svSmall)){
+    state.small=localStorage.svSmall; $('#modelSel').value=state.small; }
+  if(localStorage.svBig && models.some(m=>m.id===localStorage.svBig)){
+    state.big=localStorage.svBig; $('#bigSel').value=state.big; }
+  state.key = localStorage.svKey || '';
+  if(!localStorage.svSetup && !state.key && freeBig){ state.big=freeBig.id; $('#bigSel').value=state.big; }
+  refreshBigName();
+  if(!localStorage.svSetup) $('#setupOvl').classList.remove('hidden');
+}
+function bigOf(){
+  return state.models[state.big] ||
+    Object.values(state.models).sort((a,b)=>(b.cost_out||0)-(a.cost_out||0))[0];
+}
+function refreshBigName(){ const b=bigOf(); $('#mBigName').textContent = b? 'if every call used '+b.label : '—'; }
+function bigCost(tin, tout){ const b=bigOf()||{cost_in:0,cost_out:0};
+  return tin/1e6*(b.cost_in||0) + tout/1e6*(b.cost_out||0); }
+
+/* ---------- suggestions ---------- */
+const SUGGEST=["What is the capital of France?","What is 17 × 24?",
+  "A bat and a ball cost $1.10; the bat costs $1 more than the ball. How much is the ball?",
+  "What is the definitive, objective meaning of life?"];
+SUGGEST.forEach(s=>{const b=document.createElement('div');b.className='suggest';b.textContent=s;
+  b.onclick=()=>{$('#input').value=s;send();};$('#suggests').appendChild(b);});
+
+/* ---------- send ---------- */
+const input=$('#input'), sendBtn=$('#send'), thread=$('#thread');
+input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,160)+'px';});
+input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+sendBtn.onclick=send;
+
+function addUser(text){ $('#empty')?.remove();
+  const w=document.createElement('div');w.className='msg user';
+  const b=document.createElement('div');b.className='bubble';b.textContent=text;w.appendChild(b);
+  thread.appendChild(w);scrollDown();}
+function addTyping(){const w=document.createElement('div');w.className='msg bot';w.id='typing';
+  w.innerHTML=`<div class="bubble"><span class="typing"><i></i><i></i><i></i></span></div>`;
+  thread.appendChild(w);scrollDown();return w;}
+function scrollDown(){$('#main').scrollTop=$('#main').scrollHeight;}
+
+async function send(){
+  const text=input.value.trim(); if(!text) return;
+  if(state.guardBig && !state.guardBig()) return;   // paid big model needs a key
+  input.value='';input.style.height='auto';addUser(text);
+  sendBtn.disabled=true;$('#status').textContent='routing…';
+  const t=addTyping();
+  try{
+    const resp=await fetch('/chat',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({message:text, model:state.small, escalate_to:state.big,
+        api_key:state.key||null,
+        allow_escalation:$('#escToggle').checked, max_signals:true})});
+    const d=await resp.json(); t.remove();
+    if(resp.status===429){
+      const secs=d.retry_after_seconds;
+      const w=document.createElement('div');w.className='msg bot abstain';
+      const b=document.createElement('div');b.className='bubble';
+      b.textContent=`⏳ ${d.message||'The free lane is rate-limited.'}`+
+        (secs?` (resets in ~${secs}s)`:'');
+      w.appendChild(b);thread.appendChild(w);
+      sendBtn.disabled=false;$('#status').textContent='rate-limited — retry shortly';scrollDown();return;
+    }
+    renderBot(d); updateMeter(d);
+  }catch(e){ t.remove(); const w=document.createElement('div');w.className='msg bot abstain';
+    const b=document.createElement('div');b.className='bubble';b.textContent='Request failed: '+e;w.appendChild(b);thread.appendChild(w); }
+  sendBtn.disabled=false;$('#status').textContent='ready';scrollDown();
+}
+
+/* ---------- render assistant + routing X-ray ---------- */
+function renderBot(d){
+  const r=d.route, c=d.cost, s=d.signals;
+  const w=document.createElement('div');w.className='msg bot'+(r.abstained?' abstain':'');
+  const bub=document.createElement('div');bub.className='bubble';bub.textContent=d.answer;
+  w.appendChild(bub);
+
+  const models=r.models_used&&r.models_used.length?r.models_used:[d.model];
+  const small=models[0], big=models[1];
+  const tin=c.tokens_in, tout=c.tokens_out, tot=tin+tout;
+  const wouldBig=bigCost(tin, tout);
+  const cheaper = wouldBig - c.est_cost_usd;
+
+  let modelPills = `<span class="pill small">${lbl(small)}</span>`;
+  if(big) modelPills += `<span class="arrow">→</span><span class="pill big">${lbl(big)}</span>`;
+  else if(r.prefilter_route==='easy_direct') modelPills += `<span class="pill pf">fast-path</span>`;
+
+  const tierColors={fast:'#188038',retrieve:'#1a73e8',verify:'#009688',escalate:'#7c4dff',abstain:'#d93025'};
+  const xray=document.createElement('div');xray.className='xray';
+  xray.innerHTML=`
+    <div class="xline">
+      ${modelPills}
+      <span class="pill tier" style="color:${tierColors[r.tier_name]||''}">tier ${r.tier} · ${r.tier_name}</span>
+      ${r.prefilter_route!=='normal'?`<span class="pill pf">pre-filter: ${r.prefilter_route}</span>`:''}
+      <span class="pill tok">${commas(tot)} tok · ${commas(tin)} in / ${commas(tout)} out</span>
+      <span class="pill cost">${fmt$(c.est_cost_usd)} · ${c.llm_calls} calls</span>
+    </div>
+    <div class="why">${escapeHtml(r.reason)} · ${Math.round(d.latency_ms)} ms
+      ${big?`· <b style="color:var(--amber)">escalated: this answer cost ${fmt$(c.est_cost_usd)} (small+big)</b>`
+           :`· <b style="color:var(--green)">saved ${fmt$(Math.max(0,cheaper))} vs always-big</b>`}</div>
+    <div class="discbtn" data-x="sig">▸ signals &amp; evidence</div>
+    <div class="disc" data-x="sigbox">${signalRows(s,r)}${evidenceBlock(d.evidence)}</div>`;
+  w.appendChild(xray);
+  const btn=xray.querySelector('[data-x=sig]'), box=xray.querySelector('[data-x=sigbox]');
+  btn.onclick=()=>{box.classList.toggle('open');btn.innerHTML=(box.classList.contains('open')?'▾':'▸')+' signals &amp; evidence';};
+  thread.appendChild(w);
+}
+function lbl(id){const m=state.models[id];return m?m.label.replace(/\s*\(.*\)/,''):id;}
+function escapeHtml(x){return (x||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));}
+
+function signalRows(s,r){
+  const rows=[
+    ['uncertainty (U)',s.uncertainty,'#1a73e8'],
+    ['instability',s.instability,'#e37400'],
+    ['contradiction',s.contradiction,'#7c4dff'],
+    ['retrieval disagree',s.retrieval_disagreement,'#009688'],
+    ['abstain risk',r.abstain_risk,'#d93025'],
+  ];
+  if(r.predicted_difficulty!=null) rows.unshift(['predicted difficulty',r.predicted_difficulty,'#80868b']);
+  return rows.map(([l,v,col])=>`<div class="sig"><span class="lbl">${l}</span>
+    <span class="track"><i style="width:${Math.round((v||0)*100)}%;background:${col}"></i></span>
+    <span class="num">${(v||0).toFixed(2)}</span></div>`).join('');
+}
+function evidenceBlock(ev){ if(!ev||!ev.length) return '';
+  return `<div class="ev"><b>evidence used:</b> `+ev.slice(0,2).map(h=>
+    `“${escapeHtml(h.text.slice(0,90))}…” <span style="color:var(--ink-3)">(${h.score})</span>`).join(' · ')+`</div>`;
+}
+
+/* ---------- savings meter ---------- */
+function updateMeter(d){
+  const c=d.cost;
+  state.totals.sv += c.est_cost_usd;
+  state.totals.big += bigCost(c.tokens_in, c.tokens_out);
+  state.totals.n += 1;
+  if(d.route.escalated) state.totals.esc += 1;
+  const T=state.totals;
+  $('#mSv').textContent=fmt$(T.sv);
+  $('#mBig').textContent=fmt$(T.big);
+  $('#mMsgs').textContent=T.n+(T.n===1?' message':' messages');
+  $('#mEsc').textContent=T.esc;
+  $('#mEscSub').textContent=T.n?`${Math.round(100*T.esc/T.n)}% of messages`:'big-model calls used';
+  const saved = T.big>0 ? (1 - T.sv/T.big)*100 : 0;
+  $('#mSaved').textContent=saved.toFixed(0)+'%';
+  const card=$('#mSavedCard'); card.classList.toggle('neg',saved<0);
+  $('#mSavedBar').style.width=Math.max(0,Math.min(100,saved))+'%';
+}
+
+loadModels();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "stage": "load_4",
+  "run_id": "load_4",
+  "n_planned": 240,
+  "n_executed": 240,
+  "n_resumed": 0,
+  "n_error": 0,
+  "wall_start": 3786483.920359502,
+  "wall_end": 3786537.837696093,
+  "wall_s": 53.917336591053754,
+  "n_devices": 1,
+  "substrate": "vllm_local",
+  "config_hash": "25c33f373de17cdd",
+  "mode": "arrival",
+  "rate_rps": 4.0,
+  "gpu_seconds_per_request": 0.22465556912939064
+}

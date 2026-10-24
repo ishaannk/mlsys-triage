@@ -1,0 +1,26 @@
+{
+  "n": 232,
+  "source": "tune split, always_small",
+  "uncertainty_percentiles": {
+    "25": 0.027,
+    "50": 0.04395,
+    "60": 0.049,
+    "75": 0.06505,
+    "90": 0.09025,
+    "95": 0.09905
+  },
+  "band": [
+    0.0033,
+    0.1483
+  ],
+  "recommended": {
+    "tiers_policy.signal_gate": 0.049,
+    "tiers_policy.tau_star": 0.06505
+  },
+  "inherited": {
+    "tiers_policy.signal_gate": 0.15,
+    "tiers_policy.tau_star": 0.28
+  },
+  "inherited_are_outside_the_band": true,
+  "note": "an absolute threshold outside this model's observed band is either always-on or always-off, which is not a threshold"
+}

@@ -1,0 +1,157 @@
+# =========================================================================
+# Triage model registry.
+# `role: small` = everyday-task lane (shown in the "small tasks" picker);
+# `role: big`   = heavy-task lane (shown in the "hard tasks" picker).
+# `provider_model` is the id the provider's API expects. `cost_in`/`cost_out`
+# are USD per 1M tokens — open-source lanes are $0 (you pay the provider
+# nothing on free tiers); OpenAI rows carry exact public list prices.
+# `default_small` marks the router's auto-pick. Any model that fails on its
+# provider falls back to the built-in mock, so the app never hard-fails.
+# To add a model: copy a block, set provider/provider_model/role. That's it.
+# =========================================================================
+
+models:
+  - id: gpt-4o-mini
+    label: "GPT-4o mini (OpenAI)"
+    family: gpt
+    size_b: 0            # closed weights; size unknown
+    provider: openai
+    role: small
+    provider_model: "gpt-4o-mini"
+    mmlu: 82.0
+    gpqa: 40.2
+    cost_in: 0.15
+    cost_out: 0.60
+    context: 128000
+    escalate_to: gpt-4o
+
+  - id: gpt-4o
+    label: "GPT-4o (OpenAI)"
+    family: gpt
+    size_b: 0
+    provider: openai
+    role: big
+    provider_model: "gpt-4o"
+    mmlu: 88.7
+    gpqa: 53.6
+    cost_in: 2.50
+    cost_out: 10.00
+    context: 128000
+
+  # Modern pair — flip the escalation target / default_small to these if preferred.
+  - id: gpt-5-mini
+    label: "GPT-5 mini (OpenAI)"
+    family: gpt
+    size_b: 0
+    provider: openai
+    role: small
+    provider_model: "gpt-5-mini"
+    mmlu: 85.0
+    gpqa: 55.0
+    cost_in: 0.25
+    cost_out: 2.00
+    context: 400000
+    escalate_to: gpt-5
+
+  - id: gpt-5
+    label: "GPT-5 (OpenAI)"
+    family: gpt
+    size_b: 0
+    provider: openai
+    role: big
+    provider_model: "gpt-5"
+    mmlu: 91.0
+    gpqa: 72.0
+    cost_in: 1.25
+    cost_out: 10.00
+    context: 400000
+
+  # ======================= NVIDIA NIM (secondary lane) =======================
+  - id: llama-3.1-8b
+    label: "Llama 3.1 8B Instruct"
+    family: llama
+    size_b: 8
+    provider: nvidia
+    role: small
+    provider_model: "meta/llama-3.1-8b-instruct"
+    default_small: true         # <- router auto-pick: fast, free, returns logprobs
+    escalate_to: gpt-4o         # hard/risky tasks go to the paid strong model
+    alt:
+      groq: "llama-3.1-8b-instant"
+    mmlu: 69.4
+    gpqa: 30.4
+    cost_in: 0.0
+    cost_out: 0.0
+    context: 128000
+
+  - id: llama-3.3-70b
+    label: "Llama 3.3 70B Instruct"
+    family: llama
+    size_b: 70
+    provider: nvidia
+    role: big
+    provider_model: "meta/llama-3.3-70b-instruct"
+    alt:
+      groq: "llama-3.3-70b-versatile"
+      openrouter: "meta-llama/llama-3.3-70b-instruct:free"
+    mmlu: 86.0
+    gpqa: 50.5
+    cost_in: 0.0
+    cost_out: 0.0
+    context: 128000
+
+  - id: llama-3.1-70b
+    label: "Llama 3.1 70B Instruct"
+    family: llama
+    size_b: 70
+    provider: nvidia
+    role: big
+    provider_model: "meta/llama-3.1-70b-instruct"
+    mmlu: 83.6
+    gpqa: 46.7
+    cost_in: 0.0
+    cost_out: 0.0
+    context: 128000
+
+  - id: nemotron-super-49b
+    label: "Nemotron Super 49B (NVIDIA)"
+    family: nemotron
+    size_b: 49
+    provider: nvidia
+    role: big
+    provider_model: "nvidia/llama-3.3-nemotron-super-49b-v1"
+    mmlu: 84.0
+    gpqa: 54.0
+    cost_in: 0.0
+    cost_out: 0.0
+    context: 128000
+
+  - id: nemotron-nano-9b
+    label: "Nemotron Nano 9B v2"
+    family: nemotron
+    size_b: 9
+    provider: nvidia
+    role: small
+    provider_model: "nvidia/nvidia-nemotron-nano-9b-v2"
+    mmlu: 74.0
+    gpqa: 36.0
+    cost_in: 0.0
+    cost_out: 0.0
+    context: 128000
+
+  # ================== OpenRouter (opt-in lane, self-hosters) =================
+  # `:free` models are ~50 requests/DAY and often 429 upstream — fine for
+  # personal use, never the public-demo default. They self-hide in the UI when
+  # no `openrouter=` key is set. IDs verified live 2026-07-15.
+  - id: nemotron-ultra-550b-free
+    label: "Nemotron 3 Ultra 550B (OpenRouter, free)"
+    family: nemotron
+    size_b: 550
+    provider: openrouter
+    role: big
+    provider_model: "nvidia/nemotron-3-ultra-550b-a55b:free"
+    mmlu: 90.0
+    gpqa: 70.0
+    cost_in: 0.0
+    cost_out: 0.0
+    context: 128000

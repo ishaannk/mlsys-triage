@@ -1,0 +1,17 @@
+{
+  "stage": "s2_mid",
+  "run_id": "s2_mid",
+  "n_planned": 531,
+  "n_executed": 531,
+  "n_resumed": 0,
+  "n_error": 0,
+  "wall_start": 28591400.433229998,
+  "wall_end": 28593969.194658827,
+  "wall_s": 2568.7614288292825,
+  "n_devices": 1,
+  "substrate": "vllm_local",
+  "config_hash": "5a62fc8ee571c6a8",
+  "mode": "sequential",
+  "rate_rps": 1.0,
+  "gpu_seconds_per_request": 4.837592144687914
+}

@@ -1,0 +1,17 @@
+{
+  "stage": "s2_measure_triage_k03000",
+  "run_id": "s2_measure_triage_k03000",
+  "n_planned": 531,
+  "n_executed": 485,
+  "n_resumed": 46,
+  "n_error": 0,
+  "wall_start": 28601693.16889451,
+  "wall_end": 28603399.77867008,
+  "wall_s": 1706.60977556929,
+  "n_devices": 1,
+  "substrate": "vllm_local",
+  "config_hash": "f22bf39a0904121e",
+  "mode": "sequential",
+  "rate_rps": 1.0,
+  "gpu_seconds_per_request": 3.5187830424109072
+}

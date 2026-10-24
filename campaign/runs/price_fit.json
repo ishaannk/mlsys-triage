@@ -1,0 +1,31 @@
+{
+  "contention": {
+    "ok": true,
+    "why": "",
+    "contention_slope": 1.25446,
+    "base_price_gpu_s": 0.00355,
+    "r2": 0.9177,
+    "points": [
+      [
+        2.64,
+        0.00355
+      ],
+      [
+        8.88,
+        0.00709
+      ],
+      [
+        31.09,
+        0.00958
+      ],
+      [
+        82.35,
+        0.0529
+      ]
+    ]
+  },
+  "headroom": {
+    "ok": false,
+    "why": "offered load VARIES across these rows ([2.0, 5.0, 9.0, 14.0] rps). kv_peak tracks load as well as pool size, so a slope fitted here would be confounded. Use rows from a headroom sweep: pool varied, rate fixed."
+  }
+}

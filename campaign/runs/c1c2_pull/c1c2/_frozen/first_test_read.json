@@ -1,0 +1,18 @@
+{
+  "at": "2026-09-14T15:09:35Z",
+  "stage": "headline",
+  "knobs_sha": "3ed7d3b9e0d1da34",
+  "prereg_sha": "8d85c4bf5a2299e3",
+  "config_hash": "8c4dd8c9afa4d6b9",
+  "knobs": {
+    "alloc.lambda_compute": 0.2947998046874999,
+    "b_star": 4.918987103448277,
+    "cascade.threshold": 0.0854,
+    "learned.hybrid_llm.cut": 0.4035616565702864,
+    "learned.jitkrittum.cut": 0.2429346540400327,
+    "learned.prompt_only.cut": 0.4035616565702864,
+    "learned.prompt_only_evidence.cut": 0.4278603948716424,
+    "proxy.resamples": 1.0,
+    "random.p": 0.107496
+  }
+}

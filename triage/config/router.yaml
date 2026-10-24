@@ -1,0 +1,138 @@
+# =========================================================================
+# Triage router configuration. ALL thresholds live here (nothing hard-coded
+# in the scheduler). Signals are normalized to 0..1 before comparison.
+# =========================================================================
+
+# Which signals to compute. Turning some off lowers cost/latency of routing.
+signals:
+  uncertainty: true        # U: token-logprob entropy, or resample entropy in proxy mode
+  instability: true        # N resamples -> answer agreement rate
+  contradiction: true      # self-check probe: does the model contradict itself?
+  retrieval_disagreement: true   # does the answer disagree with retrieved evidence?
+  evidence_sufficiency: true     # is retrieved evidence enough to ground an answer?
+
+# Sampling params used when computing proxy signals.
+proxy:
+  resamples: 3             # N for instability + resample-entropy uncertainty
+  resample_temperature: 0.7
+  base_temperature: 0.2
+  max_tokens: 2048         # headroom so reasoning models finish instead of
+                           # truncating mid-thought and returning empty content
+
+# Router tier thresholds. See router/router.py for how these combine.
+tiers:
+  # Cost-aware cascade gate: the main pass returns token logprobs, so uncertainty
+  # U is FREE. Only when U >= signal_gate do we spend extra LLM calls on the
+  # deep signals (N resamples for instability + the contradiction probe). This is
+  # what keeps confident requests genuinely single-pass, so Triage is cheaper
+  # than always-verify. (If a model can't return logprobs we must resample to get
+  # any U at all, so the gate is bypassed for those.)
+  # NOTE: instruction-tuned models are overconfident — their token logprobs
+  # compress U into a low band (llama-3.1-8b: ~0.05–0.35). Thresholds are therefore
+  # CALIBRATED PER MODEL to that band, not set at absolute textbook values. The
+  # ordering of U is still informative (clean facts low, ambiguous high), so a
+  # calibrated gate separates them. (Proper fix = percentile calibration per model.)
+  signal_gate: 0.15
+  # Tier 1: retrieve when uncertainty is high but there is no conflict yet.
+  tau_star: 0.28           # U threshold to trigger retrieval (τ*), calibrated to model
+  # Tier 2: verify when the request looks conflicted / unstable / under-evidenced.
+  instability_high: 0.40   # resample-disagreement above this => unstable (a better
+                           # calibrated uncertainty signal than logprobs for these models)
+  contradiction_high: 0.5  # self-check contradiction score above this
+  evidence_low: 0.40       # evidence sufficiency below this
+  retrieval_disagreement_high: 0.5
+  # Tier-L long-context orthogonal route (CRPA stub).
+  long_context_tokens: 8000   # prompt tokens above this flags the Tier-L route
+
+# -------------------------------------------------------------------------
+# Tier 3: MODEL ESCALATION (signal-driven small -> large).
+# This is the core novelty vs a predict-then-route classifier: we do NOT guess
+# task difficulty up front. We run the cheap SMALL model, read its OWN proxy
+# signals, and only when they say the answer is unreliable do we trade UP to a
+# bigger model — spending big-model money only on the queries that need it.
+# "Small task -> small model, big task -> big model", where "big task" is
+# *observed* from the small model's behaviour, not predicted.
+# -------------------------------------------------------------------------
+escalation:
+  enabled: true
+  default_target: gpt-4o   # big model to escalate to (per-model `escalate_to` overrides)
+  # Escalate when the small model's abstain-risk is high but not hopeless, OR when
+  # it would otherwise abstain. So the ladder is: small pass -> (retrieve/verify)
+  # -> ESCALATE to big -> abstain only if the big model is also unreliable.
+  # Kept SELECTIVE on purpose: escalating too often makes Triage cost more than
+  # always-big (we pay small+big). The value is escalating only the hard minority.
+  risk_high: 0.55
+  max_escalations: 1             # hard cap on how many times we may trade up (small -> big)
+
+# Deterministic tools that answer BEFORE any model call (tool-aware routing).
+tools:
+  calculator: true               # exact arithmetic / roots / powers, ~zero cost
+
+# Retrieve/verify loop caps and cost guard.
+verify:
+  max_rounds: 1                  # cap on retrieve->verify rounds per request
+  # cost guard: skip verify if projected verify tokens > cap x main-pass tokens.
+  cost_multiplier_cap: 6.0
+  # extra tokens a verify pass adds over the main pass, used by the cost guard.
+  # This is a CONFIGURED default, not a per-request measurement; calibrate it from
+  # telemetry with:  python -m app.benchmark.verify_overhead
+  overhead_tokens: 400
+
+# -------------------------------------------------------------------------
+# Tier -1: HYBRID PREDICT-THEN-ROUTE PRE-FILTER.
+# A cheap, training-free difficulty estimate (prompt lexical features + Semantic
+# Routing Memory) that runs BEFORE any generation. It short-circuits the obvious
+# cases; the observe-then-allocate loop remains the safety net for ambiguous ones.
+#   difficulty >= hard_direct  -> skip the small pass, go straight to the big model
+#   difficulty <= easy_direct & memory-safe -> fast path, suppress the deep probes
+#   otherwise                  -> full signal loop
+# -------------------------------------------------------------------------
+prefilter:
+  enabled: true
+  hard_direct: 0.70
+  easy_direct: 0.22
+  memory_min_neighbours: 2
+  safe_escalation_rate: 0.20     # memory "safe" if similar prompts escalated <= this
+  safe_risk: 0.35                # ...and their mean abstain-risk was <= this
+
+# Semantic Routing Memory: remember each routing outcome by prompt embedding.
+memory:
+  enabled: true
+  k: 5
+  min_similarity: 0.60
+
+# Online Learning Router: adapt escalation.risk_high per small-model from live
+# outcomes (no labels). Steers toward target_escalation_rate, usefulness-gated.
+online_learning:
+  enabled: true
+  target_escalation_rate: 0.20   # aim to escalate only ~1 in 5 queries
+  risk_high_floor: 0.45          # never let learning drop the bar into over-escalation
+  risk_high_ceil: 0.72
+  step: 0.02
+
+# Cost Anomaly Detection thresholds (telemetry-driven).
+anomaly:
+  window: 200
+  z_threshold: 3.0
+
+# Abstain policy weights. abstain() is a PURE multi-signal function:
+# NO single signal can force an abstain on its own. We combine signals into a
+# risk score; abstain only when the *combination* crosses `abstain_threshold`
+# AND a verify pass did not rescue the answer.
+abstain:
+  weights:
+    uncertainty: 0.25
+    instability: 0.25
+    contradiction: 0.20
+    retrieval_disagreement: 0.15
+    evidence_insufficiency: 0.15   # = 1 - evidence_sufficiency
+  abstain_threshold: 0.62
+  # Guard: require at least this many signals to be individually "elevated"
+  # (above min_elevated_level) so one spiking signal can't dominate the sum.
+  min_elevated_signals: 2
+  min_elevated_level: 0.5
+
+# Evidence / retrieval defaults.
+retrieval:
+  top_k: 4
+  min_score: 0.20          # cosine similarity floor for a hit to count

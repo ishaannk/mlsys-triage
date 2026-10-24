@@ -1,0 +1,17 @@
+{
+  "stage": "corruption",
+  "run_id": "corruption",
+  "n_planned": 960,
+  "n_executed": 960,
+  "n_resumed": 0,
+  "n_error": 0,
+  "wall_start": 3786460.415472295,
+  "wall_end": 3786483.618716824,
+  "wall_s": 23.203244528733194,
+  "n_devices": 1,
+  "substrate": "vllm_local",
+  "config_hash": "25c33f373de17cdd",
+  "mode": "sequential",
+  "rate_rps": 1.0,
+  "gpu_seconds_per_request": 0.024170046384097078
+}

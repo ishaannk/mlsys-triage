@@ -1,0 +1,17 @@
+{
+  "stage": "robust_quant_confound_fp16_small",
+  "run_id": "robust_quant_confound_fp16_small",
+  "n_planned": 900,
+  "n_executed": 900,
+  "n_resumed": 0,
+  "n_error": 0,
+  "wall_start": 3786549.948621886,
+  "wall_end": 3786560.007867713,
+  "wall_s": 10.05924582714215,
+  "n_devices": 1,
+  "substrate": "vllm_local",
+  "config_hash": "9f053e62b290d56f",
+  "mode": "sequential",
+  "rate_rps": 1.0,
+  "gpu_seconds_per_request": 0.011176939807935722
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "file": "rigor_gsm8k.json",
+    "sha256": "8483cfd71493bf35",
+    "bytes": 1741
+  },
+  {
+    "file": "rigor_gsm8k_fixed.json",
+    "sha256": "ddef9d9cf34ec803",
+    "bytes": 1596
+  },
+  {
+    "file": "rigor_gsm8k_multiseed.json",
+    "sha256": "03463c64d7b29bd9",
+    "bytes": 2912
+  },
+  {
+    "file": "mtbench_gpt4o.json",
+    "sha256": "aff97c674beb9719",
+    "bytes": 20050
+  },
+  {
+    "file": "mtbench_gpt4o_holdout.json",
+    "sha256": "42682f6af2f5fcc9",
+    "bytes": 796
+  },
+  {
+    "file": "mtbench_gpt4o_holdout_multiseed.json",
+    "sha256": "7022ffec8b12dfcf",
+    "bytes": 552
+  },
+  {
+    "file": "mtbench_nemotron.json",
+    "sha256": "b5b356ae1c63246d",
+    "bytes": 19829
+  },
+  {
+    "file": "mtbench_nemotron_holdout.json",
+    "sha256": "174873586c6a5187",
+    "bytes": 804
+  },
+  {
+    "file": "mtbench_nemotron_holdout_multiseed.json",
+    "sha256": "f2a393a4202eba7e",
+    "bytes": 558
+  },
+  {
+    "file": "mtbench_curve.json",
+    "sha256": "b5b356ae1c63246d",
+    "bytes": 19829
+  },
+  {
+    "file": "ablation.json",
+    "sha256": "63987de043e62d19",
+    "bytes": 11323
+  }
+]

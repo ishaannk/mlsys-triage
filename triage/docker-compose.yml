@@ -1,0 +1,28 @@
+# Optional Postgres + pgvector for the retrieval backend.
+# Only needed when RETRIEVAL_BACKEND=pgvector; the app defaults to a local
+# numpy vector store and runs fine without this.
+#
+#   docker compose up -d
+#   # in .env: RETRIEVAL_BACKEND=pgvector
+#   pip install "psycopg[binary]" pgvector
+#
+services:
+  pgvector:
+    image: pgvector/pgvector:pg16
+    container_name: svserve-pgvector
+    environment:
+      POSTGRES_USER: svserve
+      POSTGRES_PASSWORD: svserve
+      POSTGRES_DB: svserve
+    ports:
+      - "5433:5432"   # host 5433 -> container 5432 (matches PG_DSN in .env.example)
+    volumes:
+      - svserve_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U svserve"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  svserve_pg:

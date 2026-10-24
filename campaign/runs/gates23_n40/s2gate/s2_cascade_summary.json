@@ -1,0 +1,17 @@
+{
+  "stage": "s2_cascade",
+  "run_id": "s2_cascade",
+  "n_planned": 92,
+  "n_executed": 92,
+  "n_resumed": 0,
+  "n_error": 0,
+  "wall_start": 9258813.310894605,
+  "wall_end": 9259551.056379484,
+  "wall_s": 737.7454848792404,
+  "n_devices": 1,
+  "substrate": "vllm_local",
+  "config_hash": "f22bf39a0904121e",
+  "mode": "sequential",
+  "rate_rps": 1.0,
+  "gpu_seconds_per_request": 8.018972661730874
+}
